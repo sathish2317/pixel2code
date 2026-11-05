@@ -16,6 +16,9 @@
       },
       "predictiveBackGestureEnabled": false
     },
-    "web": { "bundler": "metro", "favicon": "./assets/favicon.png" }
+    "web": { "bundler": "metro","output": "single", "favicon": "./assets/favicon.png" },
+     "experiments": {
+      "baseUrl": "/pixel2code"
+    }
   }
 }
