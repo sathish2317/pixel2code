@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const { load } = require('./config');
@@ -11,7 +12,11 @@ const jobsSvc = require('./services/jobs');
 
 function createApp(env = process.env, { fetchImpl, quiet } = {}) {
   const cfg = load(env);
-  const log = quiet ? logger.create('error', { log() {}, error() {} }) : logger.create(cfg.logLevel);
+
+  const log = quiet
+    ? logger.create('error', { log() {}, error() {} })
+    : logger.create(cfg.logLevel);
+
   const database = db.open(cfg.dbPath);
   const repos = db.repos(database, languageOf);
   const provider = makeProvider(cfg, fetchImpl);
@@ -19,31 +24,123 @@ function createApp(env = process.env, { fetchImpl, quiet } = {}) {
   const jobs = jobsSvc.create();
 
   const app = express();
-  app.set('trust proxy', 1);
-  app.use(cors({ origin: cfg.cors, exposedHeaders: ['content-disposition', 'x-request-id'] }));
-  app.use(mw.requestLog(log));
-  app.use(express.json({ limit: '30mb' })); // images/PDF arrive as base64
 
-  app.get('/health', (_req, res) => res.json({ ok: true, provider: provider.name, model: provider.model, hasKey: provider.configured }));
+  app.set('trust proxy', 1);
+
+  app.use(cors({
+    origin: cfg.cors,
+    exposedHeaders: ['content-disposition', 'x-request-id']
+  }));
+
+  app.use(mw.requestLog(log));
+
+  app.use(express.json({ limit: '30mb' }));
+
+  // Backend root route
+  app.get('/', (req, res) => {
+    res.status(200).json({
+      success: true,
+      message: 'Pixel2Code backend is running',
+      status: 'healthy'
+    });
+  });
+
+  // Favicon route
+  app.get('/favicon.ico', (req, res) => {
+    res.status(204).end();
+  });
+
+  // Health check route
+  app.get('/health', (_req, res) => {
+    res.json({
+      ok: true,
+      provider: provider.name,
+      model: provider.model,
+      hasKey: provider.configured
+    });
+  });
 
   const api = express.Router();
+
   api.use(mw.auth(cfg, repos));
+
   // AI-heavy routes get a tight limit, everything else a generous one.
-  const aiLimit = mw.limiter(cfg.aiRateLimit), crudLimit = mw.limiter(300);
+  const aiLimit = mw.limiter(cfg.aiRateLimit);
+  const crudLimit = mw.limiter(300);
 
-  const legacy = require('./routes/legacy')({ ai, provider, cfg });
-  const projects = require('./routes/projects')({ repos, cfg });
-  const code = require('./routes/code')({ ai, repos, cfg, jobs, projectRoutes: projects });
-  const convert = require('./routes/convert')({ ai, provider, jobs, legacy, repos, projectRoutes: projects });
-  const components = require('./routes/components')({ repos, projectRoutes: projects });
-  const design = require('./routes/design')({ ai, provider, cfg, jobs, repos, projectRoutes: projects });
-  const quality = require('./routes/quality')({ cfg, repos, projectRoutes: projects });
-  const misc = require('./routes/files')({ repos, cfg, provider, jobs, projectRoutes: projects });
+  const legacy = require('./routes/legacy')({
+    ai,
+    provider,
+    cfg
+  });
 
-  api.use('/generate', aiLimit); api.use('/refine', aiLimit); api.use('/plan', aiLimit); api.use('/code', aiLimit);
-  api.use('/convert/image-to-code', aiLimit); api.use('/convert/pdf-to-code', aiLimit);
-  api.use('/design/analyze', aiLimit); api.use('/design/compare', aiLimit); api.use('/design/iterate', aiLimit);
+  const projects = require('./routes/projects')({
+    repos,
+    cfg
+  });
+
+  const code = require('./routes/code')({
+    ai,
+    repos,
+    cfg,
+    jobs,
+    projectRoutes: projects
+  });
+
+  const convert = require('./routes/convert')({
+    ai,
+    provider,
+    jobs,
+    legacy,
+    repos,
+    projectRoutes: projects
+  });
+
+  const components = require('./routes/components')({
+    repos,
+    projectRoutes: projects
+  });
+
+  const design = require('./routes/design')({
+    ai,
+    provider,
+    cfg,
+    jobs,
+    repos,
+    projectRoutes: projects
+  });
+
+  const quality = require('./routes/quality')({
+    cfg,
+    repos,
+    projectRoutes: projects
+  });
+
+  const misc = require('./routes/files')({
+    repos,
+    cfg,
+    provider,
+    jobs,
+    projectRoutes: projects
+  });
+
+  // AI rate limits
+  api.use('/generate', aiLimit);
+  api.use('/refine', aiLimit);
+  api.use('/plan', aiLimit);
+  api.use('/code', aiLimit);
+
+  api.use('/convert/image-to-code', aiLimit);
+  api.use('/convert/pdf-to-code', aiLimit);
+
+  api.use('/design/analyze', aiLimit);
+  api.use('/design/compare', aiLimit);
+  api.use('/design/iterate', aiLimit);
+
+  // General API rate limit
   api.use(crudLimit);
+
+  // API routes
   api.use(legacy);
   api.use('/projects', projects);
   api.use('/components', components);
@@ -52,17 +149,23 @@ function createApp(env = process.env, { fetchImpl, quiet } = {}) {
   api.use('/code', code);
   api.use('/convert', convert);
   api.use(misc);
+
   app.use('/api', api);
 
+  // 404 handler - must be after all routes
   app.use(mw.notFound);
+
+  // Error handler - must be last
   app.use(mw.errorHandler(log));
-  return { app, cfg, log, database, repos, provider };
+
+  return {
+    app,
+    cfg,
+    log,
+    database,
+    repos,
+    provider
+  };
 }
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Pixel2Code backend is running",
-    status: "healthy"
-  });
-});
+
 module.exports = { createApp };
