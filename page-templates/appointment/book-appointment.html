@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Choose a service and request an appointment.">
+  <title>Book an Appointment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="appointment.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="index.html"><span class="brand-symbol">✳</span> YOUR BRAND</a><a href="index.html" class="back-link">← Back to website</a></header>
+  <main class="booking-shell">
+    <section class="booking-aside"><p class="kicker">A LITTLE TIME FOR YOU</p><h1>Make time<br>for <span>better.</span></h1><p class="aside-copy">Choose the service that feels right, find a time that works, and leave the rest to us.</p><div class="aside-note"><span class="note-icon">✦</span><div><strong>A smoother experience</strong><p>Your appointment details stay together in one simple booking flow.</p></div></div><div class="aside-footer">PERSONAL CARE · THOUGHTFUL SERVICE</div></section>
+    <section class="booking-card" aria-labelledby="booking-title">
+      <div class="card-top"><div><p class="kicker">ONLINE BOOKING</p><h2 id="booking-title">Book your visit</h2></div><span class="duration">~ 2 MIN</span></div>
+      <div class="progress" aria-label="Booking progress"><div class="progress-step active" data-progress="1"><span>1</span><small>Service</small></div><i></i><div class="progress-step" data-progress="2"><span>2</span><small>Date & time</small></div><i></i><div class="progress-step" data-progress="3"><span>3</span><small>Your details</small></div></div>
+      <form id="bookingForm" novalidate>
+        <section class="step-panel active" data-step="1"><div class="step-heading"><span>01 / SELECT A SERVICE</span><h3>What can we help with?</h3><p>Choose one option to continue.</p></div><div class="service-options"><label class="service-option"><input type="radio" name="service" value="Consultation" required><span class="service-content"><strong>Consultation</strong><small>A one-to-one conversation</small></span><b>↗</b></label><label class="service-option"><input type="radio" name="service" value="Treatment"><span class="service-content"><strong>Treatment</strong><small>Personalised care session</small></span><b>↗</b></label><label class="service-option"><input type="radio" name="service" value="Follow-up"><span class="service-content"><strong>Follow-up visit</strong><small>Continue your care journey</small></span><b>↗</b></label></div></section>
+        <section class="step-panel" data-step="2"><div class="step-heading"><span>02 / PICK A SLOT</span><h3>When works for you?</h3><p>Sample appointment slots for this demo.</p></div><label class="date-label">PREFERRED DATE<input type="date" name="date" id="bookingDate" required></label><p class="slot-label">AVAILABLE SAMPLE TIMES</p><div class="time-options"><label><input type="radio" name="time" value="10:00 AM" required><span>10:00 AM</span></label><label><input type="radio" name="time" value="11:30 AM"><span>11:30 AM</span></label><label><input type="radio" name="time" value="02:00 PM"><span>02:00 PM</span></label><label><input type="radio" name="time" value="04:30 PM"><span>04:30 PM</span></label></div></section>
+        <section class="step-panel" data-step="3"><div class="step-heading"><span>03 / YOUR DETAILS</span><h3>Almost there.</h3><p>Tell us how to reach you about your request.</p></div><div class="details-fields"><label>FULL NAME<input name="name" autocomplete="name" placeholder="Your name" required></label><label>EMAIL ADDRESS<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><label>PHONE NUMBER<input name="phone" type="tel" autocomplete="tel" placeholder="Your phone number" required></label></div><div class="review" id="bookingReview"></div></section>
+        <div class="form-actions"><button type="button" class="back-button" id="backButton" hidden>← Back</button><button type="button" class="next-button" id="nextButton">Continue <span>→</span></button><button type="submit" class="next-button" id="submitButton" hidden>Request appointment <span>↗</span></button></div>
+        <p class="demo-note" id="bookingStatus" role="status" aria-live="polite">Demo only: no real appointment is created or transmitted.</p>
+      </form>
+    </section>
+  </main>
+  <script src="appointment.js"></script>
+</body>
+</html>

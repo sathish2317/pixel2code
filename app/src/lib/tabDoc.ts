@@ -1,0 +1,26 @@
+/** Isolated browser-tab preview with a parent-owned console panel. The iframe is sandboxed
+ * without allow-same-origin so imported code cannot read the app's storage or cookies. */
+export function tabDocument(pageHtml: string, title = 'Pixel2Code preview'): string {
+  const esc = pageHtml.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  const safeTitle = title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font:13px system-ui,-apple-system,Segoe UI,sans-serif;color:#e5e7eb;background:#0b1020}
+.toolbar{height:46px;display:flex;align-items:center;gap:12px;padding:0 14px;background:#111827;border-bottom:1px solid #293247}.title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+button{border:1px solid #374151;border-radius:8px;background:#182235;color:#e5e7eb;padding:7px 11px;cursor:pointer}button:hover{background:#243149}
+#stage{height:calc(100% - 46px);display:flex;flex-direction:column}iframe{border:0;width:100%;flex:1;min-height:0;display:block;background:#fff}#console{height:240px;max-height:48%;display:none;flex-direction:column;border-top:1px solid #374151;background:#0b1020}#console.open{display:flex}.console-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #293247}.console-head strong{flex:1}.tab{padding:5px 9px}.tab.active{background:#394b6a;border-color:#7185a8}#logs{overflow:auto;padding:7px 12px;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}.log{padding:4px 0;border-bottom:1px solid #1f2937;white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#f87171}.warn,.asset{color:#fbbf24}.info{color:#93c5fd}.source{display:block;color:#9ca3af;font-size:11px}
+</style></head><body>
+<div class="toolbar"><div class="title">${safeTitle}</div><button id="consoleToggle" aria-expanded="false">Console (0)</button><button id="refresh">Refresh</button></div>
+<div id="stage"><iframe id="preview" title="${safeTitle}" sandbox="allow-scripts allow-forms" srcdoc="${esc}"></iframe><section id="console" aria-label="Preview diagnostics"><div class="console-head"><strong>Diagnostics</strong><button class="tab active" id="consoleTab">Console</button><button class="tab" id="networkTab">Network</button><button id="clear">Clear</button><button id="close">Close</button></div><div id="logs"><div class="log">No messages yet.</div></div></section></div>
+<script>
+(function(){var frame=document.getElementById('preview'),panel=document.getElementById('console'),toggle=document.getElementById('consoleToggle'),logs=document.getElementById('logs'),count=0,items=[],view='console';
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function render(){logs.innerHTML='';var visible=items.filter(function(m){return view==='network'?m.type==='network':m.type!=='network'});if(!visible.length){logs.innerHTML='<div class="log">No '+(view==='network'?'network activity':'console messages')+' captured yet.</div>';return;}visible.forEach(function(m){var d=document.createElement('div');d.className='log '+(m.type==='error'?'error':m.type==='asset'?'asset':m.type==='network'&&m.level==='error'?'error':m.level==='warn'?'warn':m.level==='info'?'info':'');d.innerHTML='['+esc(m.type==='log'?(m.level||'log').toUpperCase():(m.type||'message').toUpperCase())+'] '+esc(m.msg||'');if(m.source){var s=document.createElement('span');s.className='source';s.textContent=m.source+(m.line?':'+m.line+(m.column?':'+m.column:''):'');d.appendChild(s)}if(m.stack){var st=document.createElement('span');st.className='source';st.textContent=m.stack;d.appendChild(st)}logs.appendChild(d)});logs.scrollTop=logs.scrollHeight;}function add(m){if(!m)return;items.push(m);if(items.length>1000)items=items.slice(-1000);count++;render();toggle.textContent='Console ('+items.filter(function(x){return x.type==='error'}).length+')'}
+window.addEventListener('message',function(e){if(e.source!==frame.contentWindow||!e.data||!e.data.p2c)return;add(e.data.m)});
+toggle.addEventListener('click',function(){panel.classList.toggle('open');toggle.setAttribute('aria-expanded',String(panel.classList.contains('open')))});document.getElementById('consoleTab').addEventListener('click',function(){view='console';this.classList.add('active');document.getElementById('networkTab').classList.remove('active');render()});document.getElementById('networkTab').addEventListener('click',function(){view='network';this.classList.add('active');document.getElementById('consoleTab').classList.remove('active');render()});
+document.getElementById('close').addEventListener('click',function(){panel.classList.remove('open');toggle.setAttribute('aria-expanded','false')});
+document.getElementById('clear').addEventListener('click',function(){items=[];count=0;render();toggle.textContent='Console (0)'});
+document.getElementById('refresh').addEventListener('click',function(){items=[];count=0;render();toggle.textContent='Console (0)';frame.srcdoc=frame.srcdoc});
+})();
+</script></body></html>`;
+}

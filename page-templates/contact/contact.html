@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Get in touch with our team.">
+  <title>Contact Us</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="contact.css">
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="index.html"><span class="brand-mark">P</span><span>Your Brand</span></a><a class="header-link" href="index.html">Back to home <span aria-hidden="true">↗</span></a></header>
+  <main class="contact-layout">
+    <section class="contact-intro">
+      <p class="eyebrow"><span></span> WE WOULD LOVE TO HEAR FROM YOU</p>
+      <h1>Let’s start a<br><em>conversation.</em></h1>
+      <p class="intro-copy">Have a question, an idea, or need a little guidance? Send us a message. Our team will be happy to help you take the next step.</p>
+      <div class="contact-details">
+        <a class="detail-card" href="mailto:hello@example.com"><span class="detail-icon">✉</span><span><small>EMAIL US</small><strong>hello@example.com</strong></span><span class="detail-arrow">↗</span></a>
+        <a class="detail-card" href="tel:+910000000000"><span class="detail-icon">⌕</span><span><small>CALL US</small><strong>+91 00000 00000</strong></span><span class="detail-arrow">↗</span></a>
+        <div class="detail-card"><span class="detail-icon">⌖</span><span><small>VISIT US</small><strong>Your city, Your address</strong></span></div>
+      </div>
+      <div class="map-card"><div class="map-grid"></div><div class="map-pin">⌖</div><div class="map-caption"><strong>Come say hello</strong><span>Add your business location here</span></div></div>
+    </section>
+    <section class="form-panel" aria-labelledby="form-title">
+      <div class="form-heading"><p class="eyebrow">CONTACT FORM</p><h2 id="form-title">Send us a message</h2><p>Fill in the details below and we’ll be in touch.</p></div>
+      <form id="contactForm" novalidate>
+        <div class="field-row"><label>Your name<input name="name" autocomplete="name" placeholder="e.g. Alex Morgan" required></label><label>Email address<input name="email" type="email" autocomplete="email" placeholder="alex@example.com" required></label></div>
+        <label>Subject<input name="subject" placeholder="How can we help?" required></label>
+        <label>Your message<textarea name="message" rows="5" placeholder="Tell us a little about what you need..." required></textarea></label>
+        <button class="submit-button" type="submit">Send message <span aria-hidden="true">↗</span></button>
+        <p class="form-note">This is a demo form. Connect it to your backend to receive real messages.</p>
+        <p id="contactStatus" class="status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+  <footer class="site-footer"><span>© <span id="year"></span> Your Brand</span><span>Thoughtful service. Human connection.</span></footer>
+  <script src="contact.js"></script>
+</body>
+</html>
