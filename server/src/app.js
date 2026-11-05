@@ -58,5 +58,11 @@ function createApp(env = process.env, { fetchImpl, quiet } = {}) {
   app.use(mw.errorHandler(log));
   return { app, cfg, log, database, repos, provider };
 }
-
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Pixel2Code backend is running",
+    status: "healthy"
+  });
+});
 module.exports = { createApp };
